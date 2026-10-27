@@ -78,7 +78,8 @@ export const codeSnippet = `const amrithaMaam = {
     "React",
     "Node.js",
     "MongoDB",
-    "Express"
+    "Express",
+    "Mongoose"
   ],
   impact: "More than just teaching code",
   birthdayWish: "A lifetime of happiness"
