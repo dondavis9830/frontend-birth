@@ -70,7 +70,7 @@ export default function SurpriseBox() {
             animate={{ scale: 1 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="relative flex h-40 w-40 items-center justify-center rounded-3xl bg-gradient-to-br from-purple-500/30 to-pink-500/20 border border-purple-400/40 shadow-[0_0_40px_rgba(168,85,247,0.3)] cursor-pointer"
+            className="relative flex h-40 w-40 items-center justify-center rounded-3xl bg-linear-to-br from-purple-500/30 to-pink-500/20 border border-purple-400/40 shadow-[0_0_40px_rgba(168,85,247,0.3)] cursor-pointer"
             aria-label="Open the mystery box"
           >
             <motion.div

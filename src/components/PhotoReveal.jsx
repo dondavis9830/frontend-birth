@@ -30,7 +30,7 @@ export default function PhotoReveal() {
           className="relative"
         >
           {/* animated gradient border */}
-          <div className="absolute -inset-[2px] animate-pulse rounded-[1.6rem] bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-300 opacity-60 blur-[2px]" />
+          <div className="absolute -inset-2px animate-pulse rounded-[1.6rem] bg-linear-to-r from-purple-400 via-pink-400 to-yellow-300 opacity-60 blur-[2px]" />
           <div className="absolute -inset-3 rounded-[1.9rem] bg-purple-500/20 blur-2xl" />
 
           <div className="relative h-72 w-72 overflow-hidden rounded-[1.5rem] border border-purple-500/30 bg-slate-950/80 sm:h-96 sm:w-96 shadow-2xl">
@@ -95,7 +95,7 @@ export default function PhotoReveal() {
 
 function Fallback() {
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-purple-950/40 to-slate-950 px-4 text-center">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-linear-to-br from-purple-950/40 to-slate-950 px-4 text-center">
       <div className="flex h-20 w-20 items-center justify-center rounded-full border border-purple-400/40 bg-purple-500/10 font-display text-2xl font-bold text-purple-300 shadow-lg">
         AM
       </div>

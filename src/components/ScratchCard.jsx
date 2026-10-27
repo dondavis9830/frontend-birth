@@ -163,7 +163,7 @@ export default function ScratchCard() {
           <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-slate-950/80 shadow-[0_0_40px_rgba(168,85,247,0.2)] backdrop-blur-md">
             {/* fortune underneath */}
             <div
-              className="flex min-h-[200px] flex-col items-center justify-center gap-3 p-6"
+              className="flex min-h-50 flex-col items-center justify-center gap-3 p-6"
               style={{ width: '100%' }}
             >
               <AnimatePresence mode="wait">

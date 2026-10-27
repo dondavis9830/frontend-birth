@@ -91,7 +91,7 @@ export default function PhotoGallery() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 auto-rows-[150px] sm:auto-rows-[180px] gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 auto-rows-37.5 sm:auto-rows-45 gap-4">
             {visible.map((photo, i) => (
               <motion.button
                 key={photo.id}
@@ -113,7 +113,7 @@ export default function PhotoGallery() {
                   onError={() => handleError(photo.id)}
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950/90 via-slate-950/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                 <div className="absolute bottom-0 left-0 right-0 translate-y-2 p-4 text-left opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
                   <p className="line-clamp-2 text-xs sm:text-sm text-purple-100 font-sans font-medium">
                     {photo.caption}
@@ -135,7 +135,7 @@ export default function PhotoGallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md"
+            className="fixed inset-0 z-80 flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-md"
             onClick={close}
           >
             <button
