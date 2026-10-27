@@ -37,6 +37,22 @@ export default function CodeBirthdayCard() {
         transition={{ duration: 0.7 }}
         className="mx-auto max-w-3xl"
       >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="mb-10 text-center"
+        >
+          <p className="mb-2 font-mono text-xs uppercase tracking-[0.45em] text-purple-300/75">
+            Welcome to your surprise
+          </p>
+          <h2 className="font-display text-4xl font-semibold tracking-tight text-transparent sm:text-6xl bg-gradient-to-r from-purple-200 via-pink-200 to-yellow-200 bg-clip-text">
+            HAPPY BIRTHDAY,
+            <span className="mt-2 block">AMRITHA MA&apos;AM!</span>
+          </h2>
+        </motion.div>
+
         <div className="overflow-hidden rounded-2xl border border-purple-500/20 shadow-[0_0_40px_rgba(168,85,247,0.2)] bg-slate-950/90 backdrop-blur-md">
           {/* VS Code style title bar */}
           <div className="flex items-center justify-between border-b border-purple-500/20 bg-slate-900/80 px-4 py-2.5">
