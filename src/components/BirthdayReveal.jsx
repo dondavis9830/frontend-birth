@@ -39,6 +39,7 @@ export default function BirthdayReveal({ onConfetti }) {
           <p className="font-mono text-sm text-purple-200/70 sm:text-base">
             Compiling something special for Amritha<span className="animate-pulse">...</span>
           </p>
+           
         </motion.div>
       ) : (
         <motion.div
