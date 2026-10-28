@@ -77,7 +77,17 @@ export default function ApprovedVideoWishes({ accessToken }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [error, setError] = useState('');
   const [loaded, setLoaded] = useState(false);
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
   const videoRef = useRef(null);
+
+  const unlockAudio = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = false;
+    video.volume = 1;
+    setAudioUnlocked(true);
+    video.play().catch(() => {});
+  };
 
   useEffect(() => {
     let active = true;
@@ -140,41 +150,51 @@ export default function ApprovedVideoWishes({ accessToken }) {
             <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-purple-500/25 bg-slate-950/80 shadow-[0_0_45px_rgba(168,85,247,0.12)]">
               <AnimatePresence mode="wait" initial={false}>
                 {wishes[activeIndex] && (
-                  <motion.video
-                    ref={videoRef}
-                    key={wishes[activeIndex]._id}
-                    src={wishes[activeIndex].videoUrl}
-                    autoPlay
-                    playsInline
-                    preload="auto"
-                    volume={1}
-                    onLoadedMetadata={(event) => {
-                      event.currentTarget.muted = false;
-                      event.currentTarget.volume = 1;
-                    }}
-                    onPlay={(event) => {
-                      event.currentTarget.muted = false;
-                      event.currentTarget.volume = 1;
-                    }}
-                    onClick={() => {
-                      if (!videoRef.current) return;
-                      videoRef.current.muted = false;
-                      videoRef.current.volume = 1;
-                      videoRef.current.play().catch(() => {});
-                    }}
-                    onEnded={() => setActiveIndex((index) => (index + 1) % wishes.length)}
-                    onError={() => {
-                      if (wishes.length > 1) {
-                        setActiveIndex((index) => (index + 1) % wishes.length);
-                      }
-                    }}
-                    initial={{ x: '100%', opacity: 0.6 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: '-100%', opacity: 0.6 }}
-                    transition={{ duration: 0.55, ease: 'easeInOut' }}
-                    className="aspect-video w-full bg-slate-900 object-contain"
-                    aria-label="Birthday wish video"
-                  />
+                  <>
+                    {!audioUnlocked && (
+                      <button
+                        type="button"
+                        onClick={unlockAudio}
+                        className="absolute z-10 ml-4 mt-4 rounded-full border border-purple-300/40 bg-slate-950/80 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-purple-100 shadow-lg backdrop-blur-sm"
+                      >
+                        Tap to enable audio
+                      </button>
+                    )}
+                    <motion.video
+                      ref={videoRef}
+                      key={wishes[activeIndex]._id}
+                      src={wishes[activeIndex].videoUrl}
+                      autoPlay
+                      playsInline
+                      preload="auto"
+                      muted={!audioUnlocked}
+                      volume={1}
+                      onLoadedMetadata={(event) => {
+                        event.currentTarget.muted = !audioUnlocked;
+                        event.currentTarget.volume = 1;
+                        if (audioUnlocked) {
+                          event.currentTarget.play().catch(() => {});
+                        }
+                      }}
+                      onPlay={(event) => {
+                        event.currentTarget.muted = !audioUnlocked;
+                        event.currentTarget.volume = 1;
+                      }}
+                      onClick={unlockAudio}
+                      onEnded={() => setActiveIndex((index) => (index + 1) % wishes.length)}
+                      onError={() => {
+                        if (wishes.length > 1) {
+                          setActiveIndex((index) => (index + 1) % wishes.length);
+                        }
+                      }}
+                      initial={{ x: '100%', opacity: 0.6 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: '-100%', opacity: 0.6 }}
+                      transition={{ duration: 0.55, ease: 'easeInOut' }}
+                      className="aspect-video w-full bg-slate-900 object-contain"
+                      aria-label="Birthday wish video"
+                    />
+                  </>
                 )}
               </AnimatePresence>
             </div>
