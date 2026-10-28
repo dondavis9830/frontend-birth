@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import { apiUrl, getApiErrorMessage } from '../lib/api';
 
@@ -77,6 +77,7 @@ export default function ApprovedVideoWishes({ accessToken }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [error, setError] = useState('');
   const [loaded, setLoaded] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -140,12 +141,27 @@ export default function ApprovedVideoWishes({ accessToken }) {
               <AnimatePresence mode="wait" initial={false}>
                 {wishes[activeIndex] && (
                   <motion.video
+                    ref={videoRef}
                     key={wishes[activeIndex]._id}
                     src={wishes[activeIndex].videoUrl}
                     autoPlay
-                    muted
                     playsInline
                     preload="auto"
+                    volume={1}
+                    onLoadedMetadata={(event) => {
+                      event.currentTarget.muted = false;
+                      event.currentTarget.volume = 1;
+                    }}
+                    onPlay={(event) => {
+                      event.currentTarget.muted = false;
+                      event.currentTarget.volume = 1;
+                    }}
+                    onClick={() => {
+                      if (!videoRef.current) return;
+                      videoRef.current.muted = false;
+                      videoRef.current.volume = 1;
+                      videoRef.current.play().catch(() => {});
+                    }}
                     onEnded={() => setActiveIndex((index) => (index + 1) % wishes.length)}
                     onError={() => {
                       if (wishes.length > 1) {
