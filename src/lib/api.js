@@ -1,9 +1,11 @@
 import axios from 'axios';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || '';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/+$/, '') || '';
 
 export function apiUrl(path) {
-  return `${apiBaseUrl}${path}`;
+  const cleanPath = typeof path === 'string' ? path : '/';
+  const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+  return `${apiBaseUrl}${normalizedPath}`;
 }
 
 export function getApiErrorMessage(error) {
