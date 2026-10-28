@@ -1,7 +1,8 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CornerDownLeft, Terminal } from 'lucide-react';
-import { apiUrl, readApiResponse } from '../lib/api';
+import { apiUrl, getApiErrorMessage } from '../lib/api';
 
 const COMMANDS = [
   '$ initializing special_project...',
@@ -60,12 +61,8 @@ export default function TerminalIntro({ onAccess }) {
 
     setBusy(true);
     try {
-      const response = await fetch(apiUrl('/api/access/verify'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-      const data = await readApiResponse(response);
+      const response = await axios.post(apiUrl('/api/access/verify'), { password });
+      const data = response.data;
 
       setPassword('');
       if (!data.token || !['birthday', 'wish'].includes(data.page)) {
@@ -76,7 +73,7 @@ export default function TerminalIntro({ onAccess }) {
       setError(
         requestError instanceof TypeError
           ? 'Cannot connect to the password service. Start the backend and configure server/.env.'
-          : requestError.message
+          : getApiErrorMessage(requestError)
       );
     } finally {
       setBusy(false);

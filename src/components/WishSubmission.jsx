@@ -1,6 +1,7 @@
+import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Camera, RotateCcw, Square, Upload } from 'lucide-react';
-import { apiUrl, readApiResponse } from '../lib/api';
+import { apiUrl, getApiErrorMessage } from '../lib/api';
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_DURATION_SECONDS = 20;
@@ -176,13 +177,10 @@ export default function WishSubmission({ accessToken, onExit }) {
       const extension = recording.type.includes('mp4') ? 'mp4' : 'webm';
       formData.append('video', recording, `birthday-wish.${extension}`);
 
-      const data = await readApiResponse(
-        await fetch(apiUrl('/api/wishes'), {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${accessToken}` },
-          body: formData,
-        })
-      );
+      const response = await axios.post(apiUrl('/api/wishes'), formData, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data = response.data;
       setSuccess(data.message);
       setName('');
       setMessage('');
@@ -194,7 +192,7 @@ export default function WishSubmission({ accessToken, onExit }) {
       setError(
         requestError instanceof TypeError
           ? 'Cannot reach the upload service. Start the backend and configure server/.env.'
-          : requestError.message
+          : getApiErrorMessage(requestError)
       );
     } finally {
       setBusy(false);

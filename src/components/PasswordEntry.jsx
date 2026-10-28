@@ -1,6 +1,7 @@
+import axios from 'axios';
 import { useState } from 'react';
 import { KeyRound } from 'lucide-react';
-import { apiUrl, readApiResponse } from '../lib/api';
+import { apiUrl, getApiErrorMessage } from '../lib/api';
 
 const pageDetails = {
   birthday: {
@@ -27,12 +28,8 @@ export default function PasswordEntry({ page, onAccess }) {
     setBusy(true);
 
     try {
-      const response = await fetch(apiUrl('/api/access/verify'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ page, password }),
-      });
-      const data = await readApiResponse(response);
+      const response = await axios.post(apiUrl('/api/access/verify'), { page, password });
+      const data = response.data;
       if (!data.token) throw new Error('The API response did not include an access token.');
       setPassword('');
       onAccess(data.token);
@@ -40,7 +37,7 @@ export default function PasswordEntry({ page, onAccess }) {
       setError(
         requestError instanceof TypeError
           ? 'Cannot reach the password service. Start the backend and configure server/.env.'
-          : requestError.message
+          : getApiErrorMessage(requestError)
       );
     } finally {
       setBusy(false);

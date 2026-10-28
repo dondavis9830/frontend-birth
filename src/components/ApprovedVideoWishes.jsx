@@ -1,6 +1,7 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
-import { apiUrl, readApiResponse } from '../lib/api';
+import { apiUrl, getApiErrorMessage } from '../lib/api';
 
 function shuffle(items) {
   const shuffled = [...items];
@@ -79,13 +80,9 @@ export default function ApprovedVideoWishes({ accessToken }) {
 
   useEffect(() => {
     let active = true;
-    fetch(apiUrl('/api/wishes'), {
+    axios.get(apiUrl('/api/wishes'), {
       headers: { Authorization: `Bearer ${accessToken}` },
-    })
-      .then(async (response) => {
-        const data = await readApiResponse(response);
-        return data.wishes;
-      })
+    }).then((response) => response.data.wishes)
       .then((items) => {
         if (active) {
           const randomOrder = shuffle(items);
@@ -98,7 +95,7 @@ export default function ApprovedVideoWishes({ accessToken }) {
           setError(
             requestError instanceof TypeError
               ? 'Video wishes are unavailable until the backend is configured and running.'
-              : requestError.message
+              : getApiErrorMessage(requestError)
           );
         }
       })

@@ -1,7 +1,8 @@
+import axios from 'axios';
 import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, LogOut, RefreshCw, Trash2, X } from 'lucide-react';
-import { apiUrl, readApiResponse } from '../lib/api';
+import { apiUrl, getApiErrorMessage, readApiResponse } from '../lib/api';
 
 export default function AdminPage() {
   const [username, setUsername] = useState('');
@@ -17,14 +18,13 @@ export default function AdminPage() {
     setLoading(true);
     setError('');
     try {
-      const data = await readApiResponse(
-        await fetch(apiUrl('/api/admin/wishes'), {
-          headers: { Authorization: `Bearer ${adminToken}` },
-        })
-      );
+      const response = await axios.get(apiUrl('/api/admin/wishes'), {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
+      const data = await readApiResponse(response);
       setWishes(data.wishes);
     } catch (requestError) {
-      setError(requestError.message);
+      setError(getApiErrorMessage(requestError));
     } finally {
       setLoading(false);
     }
@@ -35,19 +35,18 @@ export default function AdminPage() {
     setError('');
     setBusy(true);
     try {
-      const data = await readApiResponse(
-        await fetch(apiUrl('/api/admin/login'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
-        })
+      const response = await axios.post(
+        apiUrl('/api/admin/login'),
+        { username, password },
+        { headers: { 'Content-Type': 'application/json' } }
       );
+      const data = await readApiResponse(response);
       setToken(data.token);
       setPassword('');
       setNotice('');
       await loadWishes(data.token);
     } catch (requestError) {
-      setError(requestError.message);
+      setError(getApiErrorMessage(requestError));
     } finally {
       setBusy(false);
     }
@@ -58,20 +57,21 @@ export default function AdminPage() {
     setNotice('');
     setBusy(true);
     try {
-      const data = await readApiResponse(
-        await fetch(apiUrl(`/api/admin/wishes/${id}`), {
-          method: 'PATCH',
+      const response = await axios.patch(
+        apiUrl(`/api/admin/wishes/${id}`),
+        { status },
+        {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ status }),
-        })
+        }
       );
+      const data = await readApiResponse(response);
       setWishes((current) => current.filter((wish) => wish._id !== id));
       setNotice(data.message);
     } catch (requestError) {
-      setError(requestError.message);
+      setError(getApiErrorMessage(requestError));
     } finally {
       setBusy(false);
     }
@@ -83,16 +83,14 @@ export default function AdminPage() {
     setNotice('');
     setBusy(true);
     try {
-      const data = await readApiResponse(
-        await fetch(apiUrl(`/api/admin/wishes/${wish._id}`), {
-          method: 'DELETE',
-          headers: { Authorization: 'Bearer ' + token },
-        })
-      );
+      const response = await axios.delete(apiUrl(`/api/admin/wishes/${wish._id}`), {
+        headers: { Authorization: 'Bearer ' + token },
+      });
+      const data = await readApiResponse(response);
       setWishes((current) => current.filter((item) => item._id !== wish._id));
       setNotice(data.message);
     } catch (requestError) {
-      setError(requestError.message);
+      setError(getApiErrorMessage(requestError));
     } finally {
       setBusy(false);
     }
