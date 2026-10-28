@@ -90,6 +90,20 @@ export default function ApprovedVideoWishes({ accessToken }) {
   };
 
   useEffect(() => {
+    const handleInteraction = () => {
+      unlockAudio();
+    };
+
+    window.addEventListener('pointerdown', handleInteraction, { passive: true });
+    window.addEventListener('keydown', handleInteraction, { passive: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+    };
+  }, []);
+
+  useEffect(() => {
     let active = true;
     axios.get(apiUrl('/api/wishes'), {
       headers: { Authorization: `Bearer ${accessToken}` },
