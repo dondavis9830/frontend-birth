@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Camera, RotateCcw, Square, Upload } from 'lucide-react';
+import { ArrowLeft, Camera, LogOut, RotateCcw, Square, Upload } from 'lucide-react';
 import { apiUrl, getApiErrorMessage } from '../lib/api';
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
@@ -207,13 +207,24 @@ export default function WishSubmission({ accessToken, onExit }) {
       </div>
 
       <section className="relative z-10 w-full max-w-xl rounded-2xl border border-purple-500/30 bg-slate-950/85 p-6 shadow-[0_0_50px_rgba(168,85,247,0.2)] backdrop-blur-md sm:p-9">
-        <button
-          type="button"
-          onClick={onExit}
-          className="inline-flex items-center gap-2 text-sm text-purple-300 transition-colors hover:text-purple-100"
-        >
-          <ArrowLeft size={16} /> Back to page options
-        </button>
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={onExit}
+            className="inline-flex items-center gap-2 text-sm text-purple-300 transition-colors hover:text-purple-100"
+          >
+            <ArrowLeft size={16} /> Back to page options
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onExit();
+            }}
+            className="inline-flex items-center gap-2 rounded-lg border border-purple-400/40 bg-slate-900/70 px-3 py-2 text-sm text-purple-100 transition-colors hover:bg-slate-800/80"
+          >
+            <LogOut size={16} /> Logout
+          </button>
+        </div>
         <div className="mb-7 mt-8 text-center">
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple-300/80">
             Share a birthday wish
