@@ -159,8 +159,8 @@ function BirthdayExperience() {
             <PhotoGallery />
             <ApprovedVideoWishes accessToken={accessToken} />
             <SurpriseBox />
-            {/* <BalloonPop /> */}
-            {/* <ScratchCard /> */}
+            <BalloonPop />
+            <ScratchCard />
             <BirthdayWishGenerator />
             <CelebrationSection onConfetti={fireConfetti} />
             <BirthdayLetter />

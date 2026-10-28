@@ -78,6 +78,8 @@ export default function ApprovedVideoWishes({ accessToken }) {
   const [error, setError] = useState('');
   const [loaded, setLoaded] = useState(false);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
+  const [isInView, setIsInView] = useState(false);
+  const sectionRef = useRef(null);
   const videoRef = useRef(null);
 
   const unlockAudio = () => {
@@ -102,6 +104,46 @@ export default function ApprovedVideoWishes({ accessToken }) {
       window.removeEventListener('keydown', handleInteraction);
     };
   }, []);
+
+  useEffect(() => {
+    const node = sectionRef.current;
+    if (!node) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setIsInView(entry.isIntersecting);
+        }
+      },
+      { threshold: 0.4 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = !audioUnlocked;
+    video.volume = 1;
+
+    if (isInView && !video.paused) {
+      video.play().catch(() => {});
+      return;
+    }
+
+    if (!isInView) {
+      video.pause();
+      return;
+    }
+
+    if (audioUnlocked) {
+      video.play().catch(() => {});
+    }
+  }, [isInView, audioUnlocked, activeIndex]);
 
   useEffect(() => {
     let active = true;
@@ -134,7 +176,7 @@ export default function ApprovedVideoWishes({ accessToken }) {
   }, [accessToken]);
 
   return (
-    <section id="video-wishes" className="px-4 py-24 sm:py-28">
+    <section ref={sectionRef} id="video-wishes" className="px-4 py-24 sm:py-28">
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 text-center">
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple-300/80">
@@ -144,7 +186,7 @@ export default function ApprovedVideoWishes({ accessToken }) {
             Wishes Straight From The Heart
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-purple-200/60 font-sans">
-            Approved birthday videos play one at a time in a random order.
+            Enjoy heartfelt birthday wishes, playing one by one in a random order. 🎂
           </p>
         </div>
 
