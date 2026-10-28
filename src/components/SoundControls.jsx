@@ -6,6 +6,21 @@ import { useSound } from '../hooks/useSound';
 export default function SoundControls({ visible }) {
   const { musicOn, toggleMusic } = useSound();
 
+  const handleMusicToggle = () => {
+    if (typeof window !== 'undefined' && typeof window.__unlockBirthdayVideoAudio === 'function') {
+      window.__unlockBirthdayVideoAudio();
+    }
+
+    const videoEls = document.querySelectorAll('video');
+    videoEls.forEach((video) => {
+      video.muted = false;
+      video.volume = 1;
+      video.play().catch(() => {});
+    });
+
+    toggleMusic();
+  };
+
   return (
     <AnimatePresence>
       {visible && (
@@ -17,7 +32,7 @@ export default function SoundControls({ visible }) {
         >
           <button
             type="button"
-            onClick={toggleMusic}
+            onClick={handleMusicToggle}
             className={`flex h-11 w-11 items-center justify-center rounded-full bg-slate-950/80 border border-purple-500/30 backdrop-blur-md transition-all hover:scale-110 cursor-pointer ${
               musicOn ? 'text-purple-300 shadow-[0_0_20px_rgba(168,85,247,0.3)]' : 'text-purple-300/40'
             }`}

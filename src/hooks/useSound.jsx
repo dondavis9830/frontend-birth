@@ -20,8 +20,7 @@ export function SoundProvider({ children }) {
   const masterGainRef = useRef(null);
   const musicGainRef = useRef(null);
   const sfxGainRef = useRef(null);
-  const musicTimerRef = useRef(null);
-  const musicNodesRef = useRef([]);
+  const musicAudioRef = useRef(null);
 
   // load persisted prefs
   useEffect(() => {
@@ -168,73 +167,35 @@ export function SoundProvider({ children }) {
     [sfxOn, ensureCtx]
   );
 
-  // --- Background music (ambient arpeggio) ---
+  // --- Background music from the public audio file ---
   const stopMusic = useCallback(() => {
-    musicNodesRef.current.forEach((n) => {
-      try {
-        n.stop();
-      } catch {
-        /* already stopped */
-      }
-    });
-    musicNodesRef.current = [];
-    if (musicTimerRef.current) {
-      clearTimeout(musicTimerRef.current);
-      musicTimerRef.current = null;
-    }
+    const audio = musicAudioRef.current;
+    if (!audio) return;
+
+    audio.pause();
+    audio.currentTime = 0;
   }, []);
 
   const startMusic = useCallback(() => {
-    const ctx = ensureCtx();
-    if (!ctx || !musicGainRef.current) return;
-    if (ctx.state === 'suspended') ctx.resume();
-    stopMusic();
+    if (typeof window === 'undefined') return;
 
-    const scale = [261.63, 311.13, 392.0, 466.16, 523.25, 622.25, 783.99];
-    const padFreqs = [130.81, 155.56, 196.0];
+    const audio = musicAudioRef.current ?? new Audio('/nastelbom-happy-birthday-469282.mp3');
+    audio.src = '/nastelbom-happy-birthday-469282.mp3';
+    audio.loop = true;
+    audio.volume = 0.4;
+    audio.preload = 'auto';
+    musicAudioRef.current = audio;
 
-    // sustained pad
-    padFreqs.forEach((freq) => {
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      lfo.frequency.value = 0.15 + Math.random() * 0.1;
-      lfoGain.gain.value = 2;
-      lfo.connect(lfoGain);
-      lfoGain.connect(osc.frequency);
-      g.gain.value = 0.04;
-      osc.connect(g);
-      g.connect(musicGainRef.current);
-      osc.start();
-      lfo.start();
-      musicNodesRef.current.push(osc, lfo);
-    });
-
-    // gentle arpeggio
-    let step = 0;
-    const playNote = () => {
-      if (!ctxRef.current || !musicGainRef.current) return;
-      const noteFreq = scale[step % scale.length];
-      const osc = ctxRef.current.createOscillator();
-      const g = ctxRef.current.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = noteFreq * 2;
-      const now = ctxRef.current.currentTime;
-      g.gain.setValueAtTime(0.0001, now);
-      g.gain.exponentialRampToValueAtTime(0.06, now + 0.05);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-      osc.connect(g);
-      g.connect(musicGainRef.current);
-      osc.start(now);
-      osc.stop(now + 1.3);
-      step++;
-      musicTimerRef.current = setTimeout(playNote, 600 + Math.random() * 400);
+    const playAudio = async () => {
+      try {
+        await audio.play();
+      } catch {
+        // Browsers will block autoplay until the user interacts. The toggle button triggers this flow.
+      }
     };
-    playNote();
-  }, [ensureCtx, stopMusic]);
+
+    playAudio();
+  }, []);
 
   useEffect(() => {
     if (musicOn) {

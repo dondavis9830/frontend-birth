@@ -84,6 +84,7 @@ export default function PasswordEntry({ page, onAccess }) {
           {busy ? 'Checking password…' : details.button}
         </button>
       </form>
+
     </section>
   );
 }

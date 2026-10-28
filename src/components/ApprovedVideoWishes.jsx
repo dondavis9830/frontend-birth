@@ -96,10 +96,12 @@ export default function ApprovedVideoWishes({ accessToken }) {
       unlockAudio();
     };
 
+    window.__unlockBirthdayVideoAudio = unlockAudio;
     window.addEventListener('pointerdown', handleInteraction, { passive: true });
     window.addEventListener('keydown', handleInteraction, { passive: true });
 
     return () => {
+      delete window.__unlockBirthdayVideoAudio;
       window.removeEventListener('pointerdown', handleInteraction);
       window.removeEventListener('keydown', handleInteraction);
     };

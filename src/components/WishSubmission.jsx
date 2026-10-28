@@ -1,4 +1,5 @@
 import axios from 'axios';
+import gsap from 'gsap';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Camera, LogOut, RotateCcw, Square, Upload } from 'lucide-react';
 import { apiUrl, getApiErrorMessage } from '../lib/api';
@@ -14,10 +15,12 @@ export default function WishSubmission({ accessToken, onExit }) {
   const [previewUrl, setPreviewUrl] = useState('');
   const [recordingActive, setRecordingActive] = useState(false);
   const [cameraStarting, setCameraStarting] = useState(false);
+  const fileInputRef = useRef(null);
   const [secondsRecorded, setSecondsRecorded] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const successCardRef = useRef(null);
   const liveVideoRef = useRef(null);
   const streamRef = useRef(null);
   const recorderRef = useRef(null);
@@ -55,11 +58,63 @@ export default function WishSubmission({ accessToken, onExit }) {
     return () => URL.revokeObjectURL(previewUrl);
   }, [previewUrl]);
 
+  useEffect(() => {
+    if (!success || !successCardRef.current) return;
+
+    const card = successCardRef.current;
+    const items = card.querySelectorAll('[data-gsap-item]');
+
+    gsap.set(items, { opacity: 0, y: 18, scale: 0.98 });
+    gsap.to(card, {
+      opacity: 1,
+      scale: 1,
+      duration: 0.7,
+      ease: 'power3.out',
+    });
+    gsap.to(items, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: 0.8,
+      stagger: 0.12,
+      ease: 'back.out(1.7)',
+      delay: 0.1,
+    });
+  }, [success]);
+
   const stopRecording = () => {
     clearRecordingTimers();
     if (recorderRef.current?.state === 'recording') {
       recorderRef.current.stop();
     }
+  };
+
+  const handleVideoUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setError('');
+    setSuccess('');
+    setRecordingActive(false);
+    clearRecordingTimers();
+    stopCamera();
+
+    if (!file.type.startsWith('video/')) {
+      setError('Please upload a valid video file.');
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > MAX_FILE_BYTES) {
+      setError('The uploaded video must be 100 MB or smaller.');
+      event.target.value = '';
+      return;
+    }
+
+    setRecording(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setSecondsRecorded(0);
+    event.target.value = '';
   };
 
   const startRecording = async () => {
@@ -207,25 +262,59 @@ export default function WishSubmission({ accessToken, onExit }) {
       </div>
 
       <section className="relative z-10 w-full max-w-xl rounded-2xl border border-purple-500/30 bg-slate-950/85 p-6 shadow-[0_0_50px_rgba(168,85,247,0.2)] backdrop-blur-md sm:p-9">
-        <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={onExit}
-            className="inline-flex items-center gap-2 text-sm text-purple-300 transition-colors hover:text-purple-100"
+        {success ? (
+          <div
+            ref={successCardRef}
+            className="relative overflow-hidden rounded-4xl border border-pink-400/30 bg-linear-to-br from-pink-500/10 via-purple-500/10 to-slate-950 p-6 text-center shadow-[0_25px_80px_rgba(236,72,153,0.18)]"
           >
-            <ArrowLeft size={16} /> Back to page options
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              onExit();
-            }}
-            className="inline-flex items-center gap-2 rounded-lg border border-purple-400/40 bg-slate-900/70 px-3 py-2 text-sm text-purple-100 transition-colors hover:bg-slate-800/80"
-          >
-            <LogOut size={16} /> Logout
-          </button>
-        </div>
-        <div className="mb-7 mt-8 text-center">
+            <div className="absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.18),transparent_62%)]" />
+            <div className="relative space-y-6">
+              <div data-gsap-item className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-pink-300/40 bg-pink-500/15 text-2xl shadow-[0_0_25px_rgba(244,114,182,0.2)]">
+                💌
+              </div>
+
+              <div data-gsap-item className="space-y-2">
+                <p className="font-mono text-xs uppercase tracking-[0.35em] text-pink-200/80">Thank you</p>
+                <h2 className="font-display text-3xl font-semibold text-purple-100">💖 A Heartfelt Thank You! 🎂</h2>
+              </div>
+
+              <div data-gsap-item className="rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-5 text-left shadow-inner shadow-white/5">
+                <p className="mt-3 text-sm leading-7 text-purple-100/80">
+                  Thank you so much for your lovely birthday wishes and for being a part of this special celebration! Your love and kind words made Amritha&apos;s birthday even more memorable. 🥰✨
+                </p>
+                <p className="mt-5 text-sm leading-7 text-purple-100/80">
+                  With love and gratitude,
+                </p>
+                <p className="mt-2 font-display text-lg text-pink-100">Amritha&apos;s Students ❤️</p>
+                <p className="mt-1 font-display text-base text-purple-200/80">Thrissur May Batch 🎓💕</p>
+              </div>
+
+              <p data-gsap-item className="text-sm leading-relaxed text-purple-200/65">
+                Your wish has been received and is now part of this beautiful celebration.
+              </p>
+
+              <button
+                data-gsap-item
+                type="button"
+                onClick={onExit}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-purple-400 to-pink-400 px-5 py-3 font-medium text-slate-950 transition-opacity hover:opacity-90"
+              >
+                <ArrowLeft size={16} /> Back to page options
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-start gap-3">
+              <button
+                type="button"
+                onClick={onExit}
+                className="inline-flex items-center gap-2 text-sm text-purple-300 transition-colors hover:text-purple-100"
+              >
+                <ArrowLeft size={16} /> Back to page options
+              </button>
+            </div>
+            <div className="mb-7 mt-8 text-center">
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple-300/80">
             Share a birthday wish
           </span>
@@ -311,14 +400,29 @@ export default function WishSubmission({ accessToken, onExit }) {
                   {cameraStarting ? 'Starting camera…' : recording ? 'Record again' : 'Start recording'}
                 </button>
               )}
-              {recording && !recordingActive && (
-                <p className="flex items-center justify-center text-sm text-green-200">
-                  Recording ready · {(recording.size / (1024 * 1024)).toFixed(1)} MB
-                </p>
-              )}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-pink-400/40 bg-pink-500/10 px-4 py-3 font-medium text-pink-100 hover:bg-pink-500/20"
+              >
+                <Upload size={17} /> Upload video
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*,.mp4,.webm"
+                onChange={handleVideoUpload}
+                className="hidden"
+              />
             </div>
+            {recording && !recordingActive && (
+              <p className="text-sm text-green-200">
+                Video ready · {(recording.size / (1024 * 1024)).toFixed(1)} MB
+              </p>
+            )}
             <p className="text-xs leading-relaxed text-purple-300/45">
-              Your browser will ask for camera and microphone access. Recording stops automatically at 20 seconds.
+              Choose a video from your device or record one directly. Recording stops automatically at 20 seconds.
             </p>
           </div>
 
@@ -336,15 +440,17 @@ export default function WishSubmission({ accessToken, onExit }) {
           <button
             type="submit"
             disabled={busy || recordingActive || !recording}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-purple-400 to-pink-400 px-5 py-3 font-medium text-slate-950 transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-linear-to-r from-purple-400 to-pink-400 px-5 py-3 font-medium text-slate-950 transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
           >
             <Upload size={17} /> {busy ? 'Uploading…' : 'Submit video wish'}
           </button>
         </form>
-        <p className="mt-5 text-center text-xs leading-relaxed text-purple-300/45">
-          Please share only a video you have permission to submit. Unapproved videos will
-          not be shown on the birthday page.
-        </p>
+            <p className="mt-5 text-center text-xs leading-relaxed text-purple-300/45">
+              Please share only a video you have permission to submit. Unapproved videos will
+              not be shown on the birthday page.
+            </p>
+          </>
+        )}
       </section>
     </main>
   );

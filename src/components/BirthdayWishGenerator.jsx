@@ -40,7 +40,7 @@ export default function BirthdayWishGenerator() {
           One More Wish for Our Favourite Trainer
         </motion.h2>
 
-        <div className="relative mt-10 flex min-h-[12rem] items-center justify-center">
+        <div className="relative mt-10 flex min-h-48 items-center justify-center">
           <div className="absolute inset-0 rounded-3xl bg-purple-500/10 blur-2xl" />
           <AnimatePresence mode="wait">
             <motion.blockquote
@@ -62,7 +62,7 @@ export default function BirthdayWishGenerator() {
         <button
           type="button"
           onClick={generate}
-          className="group mt-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 px-6 py-3 font-medium text-slate-950 shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-transform hover:scale-105 active:scale-95 cursor-pointer font-sans"
+          className="group mt-10 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-purple-400 to-pink-400 px-6 py-3 font-medium text-slate-950 shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-transform hover:scale-105 active:scale-95 cursor-pointer font-sans"
         >
           <RefreshCw size={18} className="transition-transform group-hover:rotate-180" />
           <span>Generate Another Wish ✨</span>
