@@ -89,6 +89,41 @@ export default function WishSubmission({ accessToken, onExit }) {
     }
   };
 
+  const validateVideoFile = (file) =>
+    new Promise((resolve, reject) => {
+      if (!(file instanceof Blob)) {
+        reject('Please upload a valid video file.');
+        return;
+      }
+
+      if (!file.type.startsWith('video/')) {
+        reject('Please upload a valid video file.');
+        return;
+      }
+
+      if (file.size > MAX_FILE_BYTES) {
+        reject('The uploaded video must be 100 MB or smaller.');
+        return;
+      }
+
+      const url = URL.createObjectURL(file);
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(url);
+        if (Number.isFinite(video.duration) && video.duration > MAX_DURATION_SECONDS) {
+          reject(`The uploaded video must be ${MAX_DURATION_SECONDS} seconds or shorter.`);
+          return;
+        }
+        resolve(file);
+      };
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject('This file could not be checked as a valid video. Please upload a different file.');
+      };
+      video.src = url;
+    });
+
   const handleVideoUpload = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -99,22 +134,20 @@ export default function WishSubmission({ accessToken, onExit }) {
     clearRecordingTimers();
     stopCamera();
 
-    if (!file.type.startsWith('video/')) {
-      setError('Please upload a valid video file.');
-      event.target.value = '';
-      return;
-    }
-
-    if (file.size > MAX_FILE_BYTES) {
-      setError('The uploaded video must be 100 MB or smaller.');
-      event.target.value = '';
-      return;
-    }
-
-    setRecording(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setSecondsRecorded(0);
-    event.target.value = '';
+    validateVideoFile(file)
+      .then((validatedFile) => {
+        setRecording(validatedFile);
+        setPreviewUrl(URL.createObjectURL(validatedFile));
+        setSecondsRecorded(0);
+      })
+      .catch((message) => {
+        setError(message);
+        setRecording(null);
+        setPreviewUrl('');
+      })
+      .finally(() => {
+        event.target.value = '';
+      });
   };
 
   const startRecording = async () => {
@@ -219,6 +252,14 @@ export default function WishSubmission({ accessToken, onExit }) {
       setError('Record a video wish before submitting.');
       return;
     }
+
+    try {
+      await validateVideoFile(recording);
+    } catch (validationError) {
+      setError(validationError instanceof Error ? validationError.message : validationError);
+      return;
+    }
+
     if (recording.size > MAX_FILE_BYTES) {
       setError('The video must be 100 MB or smaller.');
       return;
