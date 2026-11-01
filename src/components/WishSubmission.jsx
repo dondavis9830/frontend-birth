@@ -8,6 +8,64 @@ const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_DURATION_SECONDS = 20;
 const RECORDING_MIME_TYPES = ['video/webm', 'video/mp4'];
 
+const STAR_LAYOUT = Array.from({ length: 26 }, (_, index) => ({
+  left: `${(index * 13 + 9) % 100}%`,
+  top: `${(index * 17 + 7) % 100}%`,
+  size: 2 + (index % 5),
+  duration: 3 + (index % 6) * 1.4,
+  delay: index * 0.24,
+  drift: 14 + (index % 7) * 10,
+}));
+
+function StarField() {
+  const starRefs = useRef([]);
+
+  useEffect(() => {
+    if (!starRefs.current.length) return undefined;
+
+    const animations = starRefs.current.map((star, index) => {
+      if (!star) return null;
+      return gsap.to(star, {
+        y: `${index % 2 === 0 ? '-' : '+'}${STAR_LAYOUT[index].drift}`,
+        x: `${index % 3 === 0 ? '+' : '-'}${STAR_LAYOUT[index].drift * 0.4}`,
+        opacity: 0.35 + (index % 5) * 0.13,
+        scale: 0.9 + (index % 4) * 0.25,
+        duration: STAR_LAYOUT[index].duration,
+        delay: STAR_LAYOUT[index].delay,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
+    });
+
+    return () => {
+      animations.forEach((animation) => animation?.kill?.());
+    };
+  }, []);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.2),_transparent_45%)]" />
+      {STAR_LAYOUT.map((star, index) => (
+        <span
+          key={`${star.left}-${star.top}-${index}`}
+          ref={(node) => {
+            starRefs.current[index] = node;
+          }}
+          className="absolute rounded-full bg-white/80 shadow-[0_0_12px_rgba(255,255,255,0.9)]"
+          style={{
+            left: star.left,
+            top: star.top,
+            width: `${star.size}px`,
+            height: `${star.size}px`,
+            opacity: 0.5,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function WishSubmission({ accessToken, onExit }) {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
@@ -300,6 +358,7 @@ export default function WishSubmission({ accessToken, onExit }) {
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl" />
         <div className="absolute -right-24 bottom-10 h-72 w-72 rounded-full bg-pink-500/10 blur-3xl" />
+        <StarField />
       </div>
 
       <section className="relative z-10 w-full max-w-xl rounded-2xl border border-purple-500/30 bg-slate-950/85 p-6 shadow-[0_0_50px_rgba(168,85,247,0.2)] backdrop-blur-md sm:p-9">
