@@ -168,19 +168,16 @@ export default function ApprovedVideoWishes({ accessToken }) {
     video.muted = !audioUnlocked;
     video.volume = 1;
 
-    if (isInView && !video.paused) {
-      video.play().catch(() => {});
+    if (isInView) {
+      if (video.paused) {
+        void video.play().catch(() => {});
+      }
+      setIsVideoPaused(false);
       return;
     }
 
-    if (!isInView) {
-      video.pause();
-      return;
-    }
-
-    if (audioUnlocked) {
-      video.play().catch(() => {});
-    }
+    video.pause();
+    setIsVideoPaused(true);
   }, [isInView, audioUnlocked, activeIndex]);
 
   useEffect(() => {
