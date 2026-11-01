@@ -7,17 +7,6 @@ export default function SoundControls({ visible }) {
   const { musicOn, toggleMusic } = useSound();
 
   const handleMusicToggle = () => {
-    if (typeof window !== 'undefined' && typeof window.__unlockBirthdayVideoAudio === 'function') {
-      window.__unlockBirthdayVideoAudio();
-    }
-
-    const videoEls = document.querySelectorAll('video');
-    videoEls.forEach((video) => {
-      video.muted = false;
-      video.volume = 1;
-      video.play().catch(() => {});
-    });
-
     toggleMusic();
   };
 
