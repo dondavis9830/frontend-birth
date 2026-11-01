@@ -285,13 +285,13 @@ export default function WishSubmission({ accessToken, onExit }) {
 
     setCameraStarting(true);
     try {
-      const rearCameraConstraints = {
-        facingMode: { ideal: 'environment' },
+      const frontCameraConstraints = {
+        facingMode: { ideal: 'user' },
         width: { ideal: 1280, max: 1920 },
         height: { ideal: 720, max: 1080 },
       };
-      const frontCameraConstraints = {
-        facingMode: { ideal: 'user' },
+      const rearCameraConstraints = {
+        facingMode: { ideal: 'environment' },
         width: { ideal: 1280, max: 1920 },
         height: { ideal: 720, max: 1080 },
       };
@@ -299,26 +299,26 @@ export default function WishSubmission({ accessToken, onExit }) {
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: rearCameraConstraints,
+          video: frontCameraConstraints,
           audio: {
             echoCancellation: true,
             noiseSuppression: true,
             autoGainControl: true,
           },
         });
-      } catch (rearCameraError) {
+      } catch (frontCameraError) {
         try {
           stream = await navigator.mediaDevices.getUserMedia({
-            video: frontCameraConstraints,
+            video: rearCameraConstraints,
             audio: {
               echoCancellation: true,
               noiseSuppression: true,
               autoGainControl: true,
             },
           });
-        } catch (audioError) {
+        } catch (rearCameraError) {
           stream = await navigator.mediaDevices.getUserMedia({
-            video: rearCameraConstraints,
+            video: frontCameraConstraints,
             audio: false,
           });
         }
