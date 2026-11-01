@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
 import { apiUrl, getApiErrorMessage } from '../lib/api';
+import { useSound } from '../hooks/useSound';
 
 function shuffle(items) {
   const shuffled = [...items];
@@ -73,6 +74,7 @@ function WishMessageTicker({ wishes }) {
 }
 
 export default function ApprovedVideoWishes({ accessToken }) {
+  const { setMusicAllowed } = useSound();
   const [wishes, setWishes] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [error, setError] = useState('');
@@ -85,8 +87,10 @@ export default function ApprovedVideoWishes({ accessToken }) {
   const unlockAudio = () => {
     const video = videoRef.current;
     if (!video) return;
+
     video.muted = false;
     video.volume = 1;
+    video.playsInline = true;
     setAudioUnlocked(true);
     video.play().catch(() => {});
   };
@@ -98,11 +102,13 @@ export default function ApprovedVideoWishes({ accessToken }) {
 
     window.__unlockBirthdayVideoAudio = unlockAudio;
     window.addEventListener('pointerdown', handleInteraction, { passive: true });
+    window.addEventListener('touchstart', handleInteraction, { passive: true });
     window.addEventListener('keydown', handleInteraction, { passive: true });
 
     return () => {
       delete window.__unlockBirthdayVideoAudio;
       window.removeEventListener('pointerdown', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
       window.removeEventListener('keydown', handleInteraction);
     };
   }, []);
@@ -124,6 +130,16 @@ export default function ApprovedVideoWishes({ accessToken }) {
     observer.observe(node);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (wishes.length > 0 && isInView) {
+      setMusicAllowed(false);
+      return () => setMusicAllowed(true);
+    }
+
+    setMusicAllowed(true);
+    return undefined;
+  }, [isInView, setMusicAllowed, wishes.length]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -224,9 +240,10 @@ export default function ApprovedVideoWishes({ accessToken }) {
                       src={wishes[activeIndex].videoUrl}
                       autoPlay
                       playsInline
-                      preload="auto"
+                      preload="metadata"
                       muted={!audioUnlocked}
                       volume={1}
+                      controls={false}
                       onLoadedMetadata={(event) => {
                         event.currentTarget.muted = !audioUnlocked;
                         event.currentTarget.volume = 1;

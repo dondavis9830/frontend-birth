@@ -6,7 +6,24 @@ import { apiUrl, getApiErrorMessage } from '../lib/api';
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_DURATION_SECONDS = 20;
-const RECORDING_MIME_TYPES = ['video/webm', 'video/mp4'];
+const RECORDING_MIME_TYPES = [
+  'video/webm',
+  'video/mp4',
+  'video/quicktime',
+  'video/x-m4v',
+  'video/3gpp',
+  'video/3gpp2',
+];
+
+const getVideoFileExtension = (mimeType = '') => {
+  const type = String(mimeType).toLowerCase();
+
+  if (type.includes('webm')) return 'webm';
+  if (type.includes('quicktime') || type.includes('mov')) return 'mov';
+  if (type.includes('3gp')) return '3gp';
+  if (type.includes('m4v')) return 'm4v';
+  return 'mp4';
+};
 
 const STAR_LAYOUT = Array.from({ length: 26 }, (_, index) => ({
   left: `${(index * 13 + 9) % 100}%`,
@@ -157,6 +174,14 @@ export default function WishSubmission({ accessToken, onExit }) {
       if (!file.type.startsWith('video/')) {
         reject('Please upload a valid video file.');
         return;
+      }
+
+      if (!['video/webm', 'video/mp4', 'video/quicktime', 'video/x-m4v', 'video/3gpp', 'video/3gpp2'].includes(file.type.toLowerCase())) {
+        const fallbackType = file.type.split(';', 1)[0].trim().toLowerCase();
+        if (!fallbackType.startsWith('video/')) {
+          reject('Please upload a valid video file.');
+          return;
+        }
       }
 
       if (file.size > MAX_FILE_BYTES) {
@@ -328,7 +353,7 @@ export default function WishSubmission({ accessToken, onExit }) {
       const formData = new FormData();
       formData.append('name', name);
       formData.append('message', message);
-      const extension = recording.type.includes('mp4') ? 'mp4' : 'webm';
+      const extension = getVideoFileExtension(recording.type);
       formData.append('video', recording, `birthday-wish.${extension}`);
 
       const response = await axios.post(apiUrl('/api/wishes'), formData, {
