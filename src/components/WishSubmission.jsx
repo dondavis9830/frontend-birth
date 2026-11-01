@@ -202,19 +202,39 @@ export default function WishSubmission({ accessToken, onExit }) {
       const url = URL.createObjectURL(file);
       const video = document.createElement('video');
       video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
+
+      const failSafe = () => {
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          resolve(file);
+        }, 0);
+      };
+
       video.onloadedmetadata = () => {
-        URL.revokeObjectURL(url);
-        if (Number.isFinite(video.duration) && video.duration > MAX_DURATION_SECONDS) {
-          reject(`The uploaded video must be ${MAX_DURATION_SECONDS} seconds or shorter.`);
-          return;
+        try {
+          URL.revokeObjectURL(url);
+          if (Number.isFinite(video.duration) && video.duration > MAX_DURATION_SECONDS) {
+            reject(`The uploaded video must be ${MAX_DURATION_SECONDS} seconds or shorter.`);
+            return;
+          }
+          resolve(file);
+        } catch {
+          resolve(file);
         }
-        resolve(file);
       };
+
       video.onerror = () => {
-        URL.revokeObjectURL(url);
-        reject('This file could not be checked as a valid video. Please upload a different file.');
+        failSafe();
       };
+
       video.src = url;
+      window.setTimeout(() => {
+        if (video.readyState === 0 && !video.duration) {
+          failSafe();
+        }
+      }, 1500);
     });
 
   const handleVideoUpload = (event) => {
