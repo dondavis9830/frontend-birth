@@ -189,7 +189,7 @@ function BirthdayExperience() {
             <SurpriseBox />
             <SpinnWheal/>
             {/* <BalloonPop /> */}
-            <ScratchCard />
+            {/* <ScratchCard /> */}
             <BirthdayWishGenerator />
             <CelebrationSection onConfetti={fireConfetti} />
             <BirthdayLetter />
