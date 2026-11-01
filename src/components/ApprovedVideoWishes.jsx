@@ -81,8 +81,28 @@ export default function ApprovedVideoWishes({ accessToken }) {
   const [loaded, setLoaded] = useState(false);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   const [isInView, setIsInView] = useState(false);
+  const [isVideoPaused, setIsVideoPaused] = useState(false);
   const sectionRef = useRef(null);
   const videoRef = useRef(null);
+
+  const toggleVideoPlayback = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!audioUnlocked) {
+      unlockAudio();
+      return;
+    }
+
+    if (video.paused) {
+      void video.play();
+      setIsVideoPaused(false);
+      return;
+    }
+
+    video.pause();
+    setIsVideoPaused(true);
+  };
 
   const unlockAudio = () => {
     const video = videoRef.current;
@@ -221,7 +241,7 @@ export default function ApprovedVideoWishes({ accessToken }) {
 
         {wishes.length > 0 && (
           <>
-            <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-purple-500/25 bg-slate-950/80 shadow-[0_0_45px_rgba(168,85,247,0.12)]">
+            <div className="relative mx-auto max-w-4xl overflow-hidden rounded-2xl border border-purple-500/25 bg-slate-950/80 shadow-[0_0_45px_rgba(168,85,247,0.12)]">
               <AnimatePresence mode="wait" initial={false}>
                 {wishes[activeIndex] && (
                   <>
@@ -229,11 +249,20 @@ export default function ApprovedVideoWishes({ accessToken }) {
                       <button
                         type="button"
                         onClick={unlockAudio}
-                        className="absolute z-10 ml-4 mt-4 rounded-full border border-purple-300/40 bg-slate-950/80 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-purple-100 shadow-lg backdrop-blur-sm"
+                        className="absolute left-4 top-4 z-10 rounded-full border border-purple-300/40 bg-slate-950/80 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-purple-100 shadow-lg backdrop-blur-sm"
                       >
                         Tap to enable audio
                       </button>
                     )}
+                    <button
+                      type="button"
+                      onClick={toggleVideoPlayback}
+                      aria-label={isVideoPaused ? 'Play birthday wish video' : 'Pause birthday wish video'}
+                      className="absolute bottom-4 left-4 z-10 flex items-center gap-2 rounded-full border border-purple-300/40 bg-slate-950/80 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.28em] text-purple-100 shadow-lg backdrop-blur-sm transition hover:border-purple-200/60 hover:bg-slate-900/90"
+                    >
+                      <span className="text-base leading-none">{isVideoPaused ? '▶' : '❚❚'}</span>
+                      <span>{isVideoPaused ? 'Play' : 'Pause'}</span>
+                    </button>
                     <motion.video
                       ref={videoRef}
                       key={wishes[activeIndex]._id}
@@ -247,6 +276,7 @@ export default function ApprovedVideoWishes({ accessToken }) {
                       onLoadedMetadata={(event) => {
                         event.currentTarget.muted = !audioUnlocked;
                         event.currentTarget.volume = 1;
+                        setIsVideoPaused(event.currentTarget.paused);
                         if (audioUnlocked) {
                           event.currentTarget.play().catch(() => {});
                         }
@@ -254,7 +284,9 @@ export default function ApprovedVideoWishes({ accessToken }) {
                       onPlay={(event) => {
                         event.currentTarget.muted = !audioUnlocked;
                         event.currentTarget.volume = 1;
+                        setIsVideoPaused(false);
                       }}
+                      onPause={() => setIsVideoPaused(true)}
                       onClick={unlockAudio}
                       onEnded={() => setActiveIndex((index) => (index + 1) % wishes.length)}
                       onError={() => {
