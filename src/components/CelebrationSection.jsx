@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PartyPopper } from 'lucide-react';
 import { birthdayWishes } from '../data/birthdayWishes';
+import { useSound } from '../hooks/useSound';
 
 const FLOATING = ['Happy Birthday!', 'Thank You!', 'You Are Appreciated!'];
 
 export default function CelebrationSection({ onConfetti }) {
+  const { play } = useSound();
   const [active, setActive] = useState(false);
   const [wish, setWish] = useState(null);
   const [wishKey, setWishKey] = useState(0);
@@ -17,14 +19,20 @@ export default function CelebrationSection({ onConfetti }) {
     return () => clearInterval(id);
   }, [active]);
 
-  const celebrate = () => {
+ const celebrate = () => {
     setActive(true);
+    
+    // Play your audio file from the public folder
+    const birthdayAudio = new Audio('/birthday.mp3');
+    birthdayAudio.volume = 0.8;
+    birthdayAudio.play().catch((err) => console.log("Audio playback blocked:", err));
+
     if (onConfetti) onConfetti();
     const next = birthdayWishes[Math.floor(Math.random() * birthdayWishes.length)];
     setWish(next);
     setWishKey((k) => k + 1);
   };
-
+  
   return (
     <section className="relative overflow-hidden px-4 py-24 sm:py-28">
       <div className="pointer-events-none absolute inset-0">

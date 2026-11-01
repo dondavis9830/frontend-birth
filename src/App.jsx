@@ -24,11 +24,39 @@ import Confetti from './components/Confetti';
 import SoundControls from './components/SoundControls';
 import CursorTrail from './components/CursorTrail';
 import AmbientField from './components/AmbientField';
+import SpinnWheal from './components/SpinnWheal';
 
 const WishSubmission = lazy(() => import('./components/WishSubmission'));
 const AdminPage = lazy(() => import('./components/AdminPage'));
 
 export default function App() {
+    const { play } = useSound();
+    const [stage, setStage] = useState('terminal');
+    const [confettiTrigger, setConfettiTrigger] = useState(0);
+    const scrollRef = useRef(null);
+  
+    const fireConfetti = useCallback(() => {
+      setConfettiTrigger((n) => n + 1);
+      play('confetti');
+    }, [play]);
+  
+    const unlock = useCallback(() => {
+      setStage('experience');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }, []);
+  
+    const replay = useCallback(() => {
+      setStage('terminal');
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }, []);
+  
+    useEffect(() => {
+      if (stage === 'experience') {
+        const t = setTimeout(() => fireConfetti(), 200);
+        return () => clearTimeout(t);
+      }
+    }, [stage, fireConfetti]);
+  
   return (
     <Routes>
       <Route path="/" element={<BirthdayExperience />} />
@@ -159,7 +187,8 @@ function BirthdayExperience() {
             <PhotoGallery />
             <ApprovedVideoWishes accessToken={accessToken} />
             <SurpriseBox />
-            <BalloonPop />
+            <SpinnWheal/>
+            {/* <BalloonPop /> */}
             <ScratchCard />
             <BirthdayWishGenerator />
             <CelebrationSection onConfetti={fireConfetti} />

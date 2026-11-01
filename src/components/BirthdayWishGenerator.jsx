@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RefreshCw, Sparkles } from 'lucide-react';
 import { birthdayWishes } from '../data/birthdayWishes';
@@ -6,8 +6,13 @@ import { birthdayWishes } from '../data/birthdayWishes';
 export default function BirthdayWishGenerator() {
   const [index, setIndex] = useState(0);
   const [key, setKey] = useState(0);
+  const [hasGenerated, setHasGenerated] = useState(false);
 
   const generate = useCallback(() => {
+    if (!hasGenerated) {
+      setHasGenerated(true);
+    }
+
     if (birthdayWishes.length <= 1) {
       setKey((k) => k + 1);
       return;
@@ -18,7 +23,7 @@ export default function BirthdayWishGenerator() {
     }
     setIndex(next);
     setKey((k) => k + 1);
-  }, [index]);
+  }, [index, hasGenerated]);
 
   return (
     <section id="wishes" className="px-4 py-24 sm:py-28">
@@ -40,32 +45,44 @@ export default function BirthdayWishGenerator() {
           One More Wish for Our Favourite Trainer
         </motion.h2>
 
-        <div className="relative mt-10 flex min-h-48 items-center justify-center">
+        <div className="relative mt-10 flex min-h-[12rem] items-center justify-center">
           <div className="absolute inset-0 rounded-3xl bg-purple-500/10 blur-2xl" />
           <AnimatePresence mode="wait">
-            <motion.blockquote
-              key={key}
-              initial={{ opacity: 0, y: 20, rotateX: -8 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              exit={{ opacity: 0, y: -20, rotateX: 8 }}
-              transition={{ duration: 0.5 }}
-              className="relative z-10 rounded-3xl bg-slate-950/80 border border-purple-500/30 px-6 py-10 sm:px-12 sm:py-14 shadow-[0_0_40px_rgba(168,85,247,0.2)] backdrop-blur-md"
-            >
-              <Sparkles className="mx-auto mb-4 text-yellow-300" size={24} />
-              <p className="font-display text-xl font-medium leading-relaxed text-purple-100 sm:text-2xl">
-                {birthdayWishes[index]}
-              </p>
-            </motion.blockquote>
+            {hasGenerated ? (
+              <motion.blockquote
+                key={key}
+                initial={{ opacity: 0, y: 20, rotateX: -8 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                exit={{ opacity: 0, y: -20, rotateX: 8 }}
+                transition={{ duration: 0.5 }}
+                className="relative z-10 rounded-3xl bg-slate-950/80 border border-purple-500/30 px-6 py-10 sm:px-12 sm:py-14 shadow-[0_0_40px_rgba(168,85,247,0.2)] backdrop-blur-md w-full"
+              >
+                <Sparkles className="mx-auto mb-4 text-yellow-300" size={24} />
+                <p className="font-display text-xl font-medium leading-relaxed text-purple-100 sm:text-2xl">
+                  {birthdayWishes[index]}
+                </p>
+              </motion.blockquote>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="relative z-10 rounded-3xl border border-dashed border-purple-500/30 bg-slate-950/40 px-6 py-12 sm:px-12 sm:py-16 text-purple-300/60 w-full backdrop-blur-sm flex flex-col items-center justify-center"
+              >
+                <Sparkles size={24} className="mb-3 text-purple-400 animate-pulse" />
+                <p className="text-sm font-mono tracking-wider">Click the button below to generate a special wish ✨</p>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
 
         <button
           type="button"
           onClick={generate}
-          className="group mt-10 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-purple-400 to-pink-400 px-6 py-3 font-medium text-slate-950 shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-transform hover:scale-105 active:scale-95 cursor-pointer font-sans"
+          className="group mt-10 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 px-6 py-3 font-medium text-slate-950 shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-transform hover:scale-105 active:scale-95 cursor-pointer font-sans"
         >
           <RefreshCw size={18} className="transition-transform group-hover:rotate-180" />
-          <span>Generate Another Wish ✨</span>
+          <span>{hasGenerated ? 'Generate Another Wish ✨' : 'Generate Wish ✨'}</span>
         </button>
       </div>
     </section>

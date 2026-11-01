@@ -1,23 +1,23 @@
 export const appreciationCards = [
   {
     icon: 'Compass',
-    title: 'The Mentor',
-    text: 'For guiding us when our code refuses to cooperate and reminding us that every error has something to teach us.',
+    title: 'The Guide & Navigator',
+    text: 'For always steering us in the right direction when bugs feel endless, and showing us that every error is just a stepping stone to a breakthrough.',
   },
   {
     icon: 'HeartHandshake',
     title: 'The Patient Teacher',
-    text: 'For explaining things again, answering our questions, and helping us understand concepts one step at a time.',
+    text: 'For your boundless patience, endless encouragement, and for making even the most complex concepts feel approachable and fun to learn.',
   },
   {
     icon: 'Sparkles',
-    title: 'The Inspiration',
-    text: 'For reminding us that every expert was once a beginner and that learning is a journey worth enjoying.',
+    title: 'The True Inspiration',
+    text: 'For reminding us to stay curious, celebrate small wins, and enjoy every single step of the journey of growth and discovery.',
   },
   {
     icon: 'Star',
     title: 'The Difference Maker',
-    text: 'For making an impact that goes beyond classroom lessons and stays with us as we continue to grow.',
+    text: 'For creating a lasting impact that stretches far beyond textbooks and classrooms, inspiring us to build great things with confidence.',
   },
 ];
 
@@ -60,7 +60,7 @@ export const navLinks = [
   { id: 'gallery', label: 'Gallery' },
   { id: 'journey', label: 'Our Journey' },
   { id: 'messages', label: 'Messages' },
-  { id: 'video-wishes', label: 'Video Wishes' },
+  { id: 'videos', label: 'Video Wishes' },
   { id: 'wishes', label: 'Birthday Wishes' },
 ];
 
@@ -77,9 +77,7 @@ export const codeSnippet = `const amrithaMaam = {
     "JavaScript",
     "React",
     "Node.js",
-    "MongoDB",
-    "Express",
-    "Mongoose"
+    "MongoDB"
   ],
   impact: "More than just teaching code",
   birthdayWish: "A lifetime of happiness"
