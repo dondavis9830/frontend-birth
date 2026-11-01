@@ -7,9 +7,9 @@ import { apiUrl, getApiErrorMessage } from '../lib/api';
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_DURATION_SECONDS = 20;
 const RECORDING_MIME_TYPES = [
-  'video/webm',
   'video/mp4',
   'video/quicktime',
+  'video/webm',
   'video/x-m4v',
   'video/3gpp',
   'video/3gpp2',
@@ -23,6 +23,22 @@ const getVideoFileExtension = (mimeType = '') => {
   if (type.includes('3gp')) return '3gp';
   if (type.includes('m4v')) return 'm4v';
   return 'mp4';
+};
+
+const getVideoMimeCandidates = (file) => {
+  const name = (file?.name || '').toLowerCase();
+  const mimeType = String(file?.type || '').split(';', 1)[0].trim().toLowerCase();
+  const extensionMap = {
+    '.mp4': 'video/mp4',
+    '.mov': 'video/quicktime',
+    '.m4v': 'video/x-m4v',
+    '.3gp': 'video/3gpp',
+    '.3gpp': 'video/3gpp',
+    '.webm': 'video/webm',
+  };
+
+  const extensionMatch = Object.entries(extensionMap).find(([ext]) => name.endsWith(ext));
+  return Array.from(new Set([mimeType, extensionMatch?.[1], 'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v', 'video/3gpp', 'video/3gpp2'].filter(Boolean)));
 };
 
 const STAR_LAYOUT = Array.from({ length: 26 }, (_, index) => ({
@@ -171,17 +187,11 @@ export default function WishSubmission({ accessToken, onExit }) {
         return;
       }
 
-      if (!file.type.startsWith('video/')) {
+      const mimeCandidates = getVideoMimeCandidates(file);
+      const isRecognizedVideo = mimeCandidates.some((candidate) => candidate.startsWith('video/'));
+      if (!isRecognizedVideo) {
         reject('Please upload a valid video file.');
         return;
-      }
-
-      if (!['video/webm', 'video/mp4', 'video/quicktime', 'video/x-m4v', 'video/3gpp', 'video/3gpp2'].includes(file.type.toLowerCase())) {
-        const fallbackType = file.type.split(';', 1)[0].trim().toLowerCase();
-        if (!fallbackType.startsWith('video/')) {
-          reject('Please upload a valid video file.');
-          return;
-        }
       }
 
       if (file.size > MAX_FILE_BYTES) {
@@ -284,7 +294,9 @@ export default function WishSubmission({ accessToken, onExit }) {
         await liveVideoRef.current.play().catch(() => {});
       }
 
-      const mimeType = RECORDING_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type));
+      const preferredMimeTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v', 'video/3gpp'];
+      const mimeType = preferredMimeTypes.find((type) => MediaRecorder.isTypeSupported(type))
+        ?? RECORDING_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type));
       const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       recorderRef.current = recorder;
       chunksRef.current = [];
