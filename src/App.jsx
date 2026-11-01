@@ -83,16 +83,23 @@ export default function App() {
 
 function WishRoute() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setMusicAllowed } = useSound();
+  const accessToken = new URLSearchParams(location.search).get('token') ?? '';
 
   useEffect(() => {
     setMusicAllowed(false);
+    if (!accessToken) {
+      navigate('/', { replace: true });
+      return;
+    }
+
     return () => setMusicAllowed(false);
-  }, [setMusicAllowed]);
+  }, [accessToken, navigate, setMusicAllowed]);
 
   return (
     <Suspense fallback={<PageLoading />}>
-      <WishSubmission accessToken="" onExit={() => navigate('/')} />
+      <WishSubmission accessToken={accessToken} onExit={() => navigate('/')} />
     </Suspense>
   );
 }
