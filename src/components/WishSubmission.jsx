@@ -242,31 +242,50 @@ export default function WishSubmission({ accessToken, onExit }) {
     setPreviewUrl('');
 
     if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) {
-      setError('Live recording is not supported by this browser. Try a current version of Chrome, Edge, or Firefox.');
+      setError('Live recording is not supported by this browser. Try a current version of Chrome, Edge, or Safari.');
       return;
     }
 
     setCameraStarting(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      const videoConstraints = {
+        facingMode: { ideal: 'user' },
+        width: { ideal: 1280, max: 1920 },
+        height: { ideal: 720, max: 1080 },
+      };
+
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: videoConstraints,
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+      } catch (audioError) {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: videoConstraints,
+          audio: false,
+        });
+      }
+
       if (!mountedRef.current) {
         stream.getTracks().forEach((track) => track.stop());
         return;
       }
+
       streamRef.current = stream;
       if (liveVideoRef.current) {
         liveVideoRef.current.srcObject = stream;
-        await liveVideoRef.current.play();
+        liveVideoRef.current.muted = true;
+        liveVideoRef.current.playsInline = true;
+        await liveVideoRef.current.play().catch(() => {});
       }
 
       const mimeType = RECORDING_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type));
-      if (!mimeType) {
-        setCameraStarting(false);
-        stopCamera();
-        setError('This browser cannot record an MP4 or WebM video. Try a current version of Chrome, Edge, or Firefox.');
-        return;
-      }
-      const recorder = new MediaRecorder(stream, { mimeType });
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
       recorderRef.current = recorder;
       chunksRef.current = [];
       recorder.ondataavailable = (event) => {
@@ -305,10 +324,7 @@ export default function WishSubmission({ accessToken, onExit }) {
         const elapsed = Math.floor((Date.now() - recordingStartedAtRef.current) / 1000);
         setSecondsRecorded(Math.min(elapsed, MAX_DURATION_SECONDS));
       }, 200);
-      recordingTimeoutRef.current = window.setTimeout(
-        stopRecording,
-        MAX_DURATION_SECONDS * 1000
-      );
+      recordingTimeoutRef.current = window.setTimeout(stopRecording, MAX_DURATION_SECONDS * 1000);
     } catch (cameraError) {
       if (!mountedRef.current) {
         stopCamera();
