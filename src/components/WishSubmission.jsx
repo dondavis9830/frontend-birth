@@ -5,7 +5,7 @@ import { ArrowLeft, Camera, LogOut, RotateCcw, Square, Upload } from 'lucide-rea
 import { apiUrl, getApiErrorMessage } from '../lib/api';
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
-const MAX_DURATION_SECONDS = 20;
+const MAX_DURATION_SECONDS = 22;
 const RECORDING_MIME_TYPES = [
   'video/mp4',
   'video/quicktime',

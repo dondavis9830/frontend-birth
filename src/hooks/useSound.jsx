@@ -16,6 +16,7 @@ const SFX_KEY = 'amritha_sfx_pref';
 export function SoundProvider({ children }) {
   const [musicOn, setMusicOn] = useState(false); // off by default per requirements
   const [musicAllowed, setMusicAllowed] = useState(true);
+  const [musicVolume, setMusicVolume] = useState(0.4);
   const [musicSrc, setMusicSrc] = useState('/normal.mp3');
   const [sfxOn, setSfxOn] = useState(true);
   const ctxRef = useRef(null);
@@ -184,7 +185,7 @@ export function SoundProvider({ children }) {
     const audio = musicAudioRef.current ?? new Audio(musicSrc);
     audio.src = musicSrc;
     audio.loop = true;
-    audio.volume = 0.4;
+    audio.volume = musicVolume;
     audio.preload = 'auto';
     musicAudioRef.current = audio;
 
@@ -197,7 +198,14 @@ export function SoundProvider({ children }) {
     };
 
     playAudio();
-  }, [musicSrc]);
+  }, [musicSrc, musicVolume]);
+
+  useEffect(() => {
+    const audio = musicAudioRef.current;
+    if (audio) {
+      audio.volume = musicVolume;
+    }
+  }, [musicVolume]);
 
   useEffect(() => {
     if (musicOn && musicAllowed) {
@@ -232,14 +240,16 @@ export function SoundProvider({ children }) {
       musicOn,
       sfxOn,
       musicAllowed,
+      musicVolume,
       musicSrc,
       toggleMusic: () => setMusicOn((m) => !m),
       toggleSfx: () => setSfxOn((s) => !s),
       setMusicAllowed,
+      setMusicVolume,
       setMusicSrc,
       play,
     }),
-    [musicOn, sfxOn, musicAllowed, musicSrc, play]
+    [musicOn, sfxOn, musicAllowed, musicVolume, musicSrc, play]
   );
 
   return <SoundContext.Provider value={value}>{children}</SoundContext.Provider>;
@@ -252,10 +262,12 @@ export function useSound() {
       musicOn: false,
       sfxOn: false,
       musicAllowed: true,
+      musicVolume: 0.4,
       musicSrc: '/normal.mp3',
       toggleMusic: () => {},
       toggleSfx: () => {},
       setMusicAllowed: () => {},
+      setMusicVolume: () => {},
       setMusicSrc: () => {},
       play: () => {},
     };

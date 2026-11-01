@@ -74,7 +74,7 @@ function WishMessageTicker({ wishes }) {
 }
 
 export default function ApprovedVideoWishes({ accessToken }) {
-  const { setMusicAllowed } = useSound();
+  const { setMusicAllowed, setMusicVolume } = useSound();
   const [wishes, setWishes] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [error, setError] = useState('');
@@ -153,13 +153,15 @@ export default function ApprovedVideoWishes({ accessToken }) {
 
   useEffect(() => {
     if (wishes.length > 0 && isInView) {
-      setMusicAllowed(false);
-      return () => setMusicAllowed(true);
+      setMusicAllowed(true);
+      setMusicVolume(0.08);
+      return () => setMusicVolume(0.4);
     }
 
     setMusicAllowed(true);
+    setMusicVolume(0.4);
     return undefined;
-  }, [isInView, setMusicAllowed, wishes.length]);
+  }, [isInView, setMusicAllowed, setMusicVolume, wishes.length]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -281,11 +283,18 @@ export default function ApprovedVideoWishes({ accessToken }) {
                       onPlay={(event) => {
                         event.currentTarget.muted = !audioUnlocked;
                         event.currentTarget.volume = 1;
+                        setMusicVolume(0.08);
                         setIsVideoPaused(false);
                       }}
-                      onPause={() => setIsVideoPaused(true)}
+                      onPause={() => {
+                        setMusicVolume(0.4);
+                        setIsVideoPaused(true);
+                      }}
                       onClick={unlockAudio}
-                      onEnded={() => setActiveIndex((index) => (index + 1) % wishes.length)}
+                      onEnded={() => {
+                        setMusicVolume(0.4);
+                        setActiveIndex((index) => (index + 1) % wishes.length);
+                      }}
                       onError={() => {
                         if (wishes.length > 1) {
                           setActiveIndex((index) => (index + 1) % wishes.length);
