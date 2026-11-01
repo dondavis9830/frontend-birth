@@ -82,26 +82,17 @@ export default function App() {
 }
 
 function WishRoute() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const accessToken = location.state?.accessToken;
+  const { setMusicAllowed } = useSound();
+
+  useEffect(() => {
+    setMusicAllowed(false);
+    return () => setMusicAllowed(false);
+  }, [setMusicAllowed]);
+
   return (
     <Suspense fallback={<PageLoading />}>
-      {accessToken ? (
-        <WishSubmission accessToken={accessToken} onExit={() => navigate('/')} />
-      ) : (
-        <main className="relative flex min-h-screen items-center justify-center px-4 py-14">
-          <section className="w-full max-w-xl">
-            <button type="button" onClick={() => navigate('/')} className="mb-6 text-sm text-purple-300 hover:text-purple-100">
-              Back
-            </button>
-            <PasswordEntry
-              page="wish"
-              onAccess={(token) => navigate('/wish', { replace: true, state: { accessToken: token } })}
-            />
-          </section>
-        </main>
-      )}
+      <WishSubmission accessToken="" onExit={() => navigate('/')} />
     </Suspense>
   );
 }
@@ -115,7 +106,7 @@ function PageLoading() {
 }
 
 function BirthdayExperience() {
-  const { play } = useSound();
+  const { play, setMusicAllowed } = useSound();
   const navigate = useNavigate();
   const [stage, setStage] = useState('terminal');
   const [accessToken, setAccessToken] = useState('');
@@ -145,6 +136,10 @@ function BirthdayExperience() {
     }
   }, [stage, fireConfetti]);
 
+  useEffect(() => {
+    setMusicAllowed(stage === 'experience');
+  }, [stage, setMusicAllowed]);
+
   return (
     <div ref={scrollRef} className="relative min-h-screen bg-midnight">
       <AmbientField />
@@ -168,7 +163,7 @@ function BirthdayExperience() {
                   unlock(token);
                   return;
                 }
-                navigate('/wish', { state: { accessToken: token } });
+                navigate(`/wish?token=${encodeURIComponent(token)}`, { replace: true });
               }}
             />
           </motion.main>

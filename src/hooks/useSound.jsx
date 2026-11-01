@@ -15,6 +15,7 @@ const SFX_KEY = 'amritha_sfx_pref';
 
 export function SoundProvider({ children }) {
   const [musicOn, setMusicOn] = useState(false); // off by default per requirements
+  const [musicAllowed, setMusicAllowed] = useState(true);
   const [sfxOn, setSfxOn] = useState(true);
   const ctxRef = useRef(null);
   const masterGainRef = useRef(null);
@@ -198,7 +199,7 @@ export function SoundProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if (musicOn) {
+    if (musicOn && musicAllowed) {
       startMusic();
     } else {
       stopMusic();
@@ -208,7 +209,7 @@ export function SoundProvider({ children }) {
     } catch {
       /* ignore */
     }
-  }, [musicOn, startMusic, stopMusic]);
+  }, [musicOn, musicAllowed, startMusic, stopMusic]);
 
   useEffect(() => {
     try {
@@ -229,11 +230,13 @@ export function SoundProvider({ children }) {
     () => ({
       musicOn,
       sfxOn,
+      musicAllowed,
       toggleMusic: () => setMusicOn((m) => !m),
       toggleSfx: () => setSfxOn((s) => !s),
+      setMusicAllowed,
       play,
     }),
-    [musicOn, sfxOn, play]
+    [musicOn, sfxOn, musicAllowed, play]
   );
 
   return <SoundContext.Provider value={value}>{children}</SoundContext.Provider>;
@@ -245,8 +248,10 @@ export function useSound() {
     return {
       musicOn: false,
       sfxOn: false,
+      musicAllowed: true,
       toggleMusic: () => {},
       toggleSfx: () => {},
+      setMusicAllowed: () => {},
       play: () => {},
     };
   }

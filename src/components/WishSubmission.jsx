@@ -274,7 +274,7 @@ export default function WishSubmission({ accessToken, onExit }) {
       formData.append('video', recording, `birthday-wish.${extension}`);
 
       const response = await axios.post(apiUrl('/api/wishes'), formData, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
       });
       const data = response.data;
       setSuccess(data.message);
