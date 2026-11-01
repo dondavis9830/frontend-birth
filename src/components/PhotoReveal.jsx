@@ -9,7 +9,7 @@ export default function PhotoReveal() {
   return (
     <section id="about" className="relative px-4 py-24 sm:py-28">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-500/12 blur-[120px]" />
+        <div className="absolute left-1/2 top-1/2 h-112 w-md -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-500/12 blur-[120px]" />
       </div>
 
       <div className="mx-auto flex max-w-4xl flex-col items-center gap-8 text-center">
@@ -33,7 +33,7 @@ export default function PhotoReveal() {
           <div className="absolute -inset-2px animate-pulse rounded-[1.6rem] bg-linear-to-r from-purple-400 via-pink-400 to-yellow-300 opacity-60 blur-[2px]" />
           <div className="absolute -inset-3 rounded-[1.9rem] bg-purple-500/20 blur-2xl" />
 
-          <div className="relative h-72 w-72 overflow-hidden rounded-[1.5rem] border border-purple-500/30 bg-slate-950/80 sm:h-96 sm:w-96 shadow-2xl">
+          <div className="relative h-72 w-72 overflow-hidden rounded-3xl border border-purple-500/30 bg-slate-950/80 sm:h-96 sm:w-96 shadow-2xl">
             {!errored ? (
               <img
                 src="/images/amritha.jpg"
