@@ -13,32 +13,41 @@ const RECORDING_MIME_TYPES = [
   'video/x-m4v',
   'video/3gpp',
   'video/3gpp2',
+  'video/x-msvideo',
+  'video/x-ms-wmv',
 ];
 
-const getVideoFileExtension = (mimeType = '') => {
+const VIDEO_EXTENSIONS = [
+  '.mp4', '.m4v', '.mov', '.3gp', '.3gpp', '.3g2', '.webm', '.avi', '.mkv', '.wmv',
+  '.flv', '.mpeg', '.mpg', '.m2ts', '.ts', '.mts', '.mxf', '.dv', '.f4v', '.m2v', '.vob',
+  '.ogv', '.divx', '.xvid'
+];
+
+const getVideoFileExtension = (mimeType = '', fileName = '') => {
   const type = String(mimeType).toLowerCase();
+  const name = String(fileName).toLowerCase();
 
   if (type.includes('webm')) return 'webm';
-  if (type.includes('quicktime') || type.includes('mov')) return 'mov';
-  if (type.includes('3gp')) return '3gp';
-  if (type.includes('m4v')) return 'm4v';
+  if (type.includes('quicktime') || name.endsWith('.mov')) return 'mov';
+  if (type.includes('3gp') || name.endsWith('.3gp') || name.endsWith('.3gpp') || name.endsWith('.3g2')) return '3gp';
+  if (type.includes('m4v') || name.endsWith('.m4v')) return 'm4v';
+  if (type.includes('x-msvideo') || name.endsWith('.avi')) return 'avi';
+  if (name.endsWith('.mkv')) return 'mkv';
+  if (name.endsWith('.wmv')) return 'wmv';
+  if (name.endsWith('.flv')) return 'flv';
+  if (name.endsWith('.mpeg') || name.endsWith('.mpg')) return 'mpeg';
   return 'mp4';
 };
 
-const getVideoMimeCandidates = (file) => {
-  const name = (file?.name || '').toLowerCase();
-  const mimeType = String(file?.type || '').split(';', 1)[0].trim().toLowerCase();
-  const extensionMap = {
-    '.mp4': 'video/mp4',
-    '.mov': 'video/quicktime',
-    '.m4v': 'video/x-m4v',
-    '.3gp': 'video/3gpp',
-    '.3gpp': 'video/3gpp',
-    '.webm': 'video/webm',
-  };
+const looksLikeVideoFile = (file) => {
+  if (!(file instanceof Blob)) return false;
 
-  const extensionMatch = Object.entries(extensionMap).find(([ext]) => name.endsWith(ext));
-  return Array.from(new Set([mimeType, extensionMatch?.[1], 'video/mp4', 'video/quicktime', 'video/webm', 'video/x-m4v', 'video/3gpp', 'video/3gpp2'].filter(Boolean)));
+  const mimeType = String(file.type || '').split(';', 1)[0].trim().toLowerCase();
+  if (mimeType.startsWith('video/')) return true;
+  if (mimeType.startsWith('audio/')) return false;
+
+  const name = String(file.name || '').toLowerCase();
+  return VIDEO_EXTENSIONS.some((ext) => name.endsWith(ext));
 };
 
 const STAR_LAYOUT = Array.from({ length: 26 }, (_, index) => ({
@@ -187,9 +196,7 @@ export default function WishSubmission({ accessToken, onExit }) {
         return;
       }
 
-      const mimeCandidates = getVideoMimeCandidates(file);
-      const isRecognizedVideo = mimeCandidates.some((candidate) => candidate.startsWith('video/'));
-      if (!isRecognizedVideo) {
+      if (!looksLikeVideoFile(file)) {
         reject('Please upload a valid video file.');
         return;
       }
@@ -401,7 +408,7 @@ export default function WishSubmission({ accessToken, onExit }) {
       const formData = new FormData();
       formData.append('name', name);
       formData.append('message', message);
-      const extension = getVideoFileExtension(recording.type);
+      const extension = getVideoFileExtension(recording.type, recording.name || 'birthday-wish');
       formData.append('video', recording, `birthday-wish.${extension}`);
 
       const response = await axios.post(apiUrl('/api/wishes'), formData, {
@@ -584,7 +591,7 @@ export default function WishSubmission({ accessToken, onExit }) {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="video/*,.mp4,.webm"
+                accept="video/*,.mp4,.m4v,.mov,.3gp,.3gpp,.3g2,.webm,.avi,.mkv,.wmv,.flv,.mpeg,.mpg,.m2ts,.ts,.mts,.mxf,.dv,.f4v,.m2v,.vob,.ogv,.divx,.xvid"
                 onChange={handleVideoUpload}
                 className="hidden"
               />
