@@ -116,7 +116,15 @@ export default function ApprovedVideoWishes({ accessToken }) {
   };
 
   useEffect(() => {
-    const handleInteraction = () => {
+    const handleInteraction = (event) => {
+      const target = event?.target;
+      const section = sectionRef.current;
+
+      if (!section || !(target instanceof Node)) return;
+
+      const isInsideVideoSection = section.contains(target);
+      if (!isInsideVideoSection) return;
+
       unlockAudio();
     };
 
