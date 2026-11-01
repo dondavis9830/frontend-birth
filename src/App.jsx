@@ -106,7 +106,7 @@ function PageLoading() {
 }
 
 function BirthdayExperience() {
-  const { play, setMusicAllowed } = useSound();
+  const { play, setMusicAllowed, setMusicSrc } = useSound();
   const navigate = useNavigate();
   const [stage, setStage] = useState('terminal');
   const [accessToken, setAccessToken] = useState('');
@@ -137,8 +137,12 @@ function BirthdayExperience() {
   }, [stage, fireConfetti]);
 
   useEffect(() => {
-    setMusicAllowed(stage === 'experience');
-  }, [stage, setMusicAllowed]);
+    const isEntry = stage === 'terminal';
+    const isBirthday = stage === 'experience';
+
+    setMusicAllowed(isEntry || isBirthday);
+    setMusicSrc(isEntry ? '/normal.mp3' : '/nastelbom-happy-birthday-469282.mp3');
+  }, [stage, setMusicAllowed, setMusicSrc]);
 
   return (
     <div ref={scrollRef} className="relative min-h-screen bg-midnight">

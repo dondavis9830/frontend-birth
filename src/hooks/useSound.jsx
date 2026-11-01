@@ -16,6 +16,7 @@ const SFX_KEY = 'amritha_sfx_pref';
 export function SoundProvider({ children }) {
   const [musicOn, setMusicOn] = useState(false); // off by default per requirements
   const [musicAllowed, setMusicAllowed] = useState(true);
+  const [musicSrc, setMusicSrc] = useState('/normal.mp3');
   const [sfxOn, setSfxOn] = useState(true);
   const ctxRef = useRef(null);
   const masterGainRef = useRef(null);
@@ -180,8 +181,8 @@ export function SoundProvider({ children }) {
   const startMusic = useCallback(() => {
     if (typeof window === 'undefined') return;
 
-    const audio = musicAudioRef.current ?? new Audio('/nastelbom-happy-birthday-469282.mp3');
-    audio.src = '/nastelbom-happy-birthday-469282.mp3';
+    const audio = musicAudioRef.current ?? new Audio(musicSrc);
+    audio.src = musicSrc;
     audio.loop = true;
     audio.volume = 0.4;
     audio.preload = 'auto';
@@ -196,7 +197,7 @@ export function SoundProvider({ children }) {
     };
 
     playAudio();
-  }, []);
+  }, [musicSrc]);
 
   useEffect(() => {
     if (musicOn && musicAllowed) {
@@ -231,12 +232,14 @@ export function SoundProvider({ children }) {
       musicOn,
       sfxOn,
       musicAllowed,
+      musicSrc,
       toggleMusic: () => setMusicOn((m) => !m),
       toggleSfx: () => setSfxOn((s) => !s),
       setMusicAllowed,
+      setMusicSrc,
       play,
     }),
-    [musicOn, sfxOn, musicAllowed, play]
+    [musicOn, sfxOn, musicAllowed, musicSrc, play]
   );
 
   return <SoundContext.Provider value={value}>{children}</SoundContext.Provider>;
@@ -249,9 +252,11 @@ export function useSound() {
       musicOn: false,
       sfxOn: false,
       musicAllowed: true,
+      musicSrc: '/normal.mp3',
       toggleMusic: () => {},
       toggleSfx: () => {},
       setMusicAllowed: () => {},
+      setMusicSrc: () => {},
       play: () => {},
     };
   }
