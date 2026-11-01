@@ -539,7 +539,7 @@ export default function WishSubmission({ accessToken, onExit }) {
             <span>Your birthday message</span>
             <textarea
               required
-              maxLength={300}
+              maxLength={180}
               rows={3}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
