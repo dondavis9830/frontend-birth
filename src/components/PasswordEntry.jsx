@@ -55,7 +55,7 @@ export default function PasswordEntry({ page, onAccess }) {
           <p className="mt-1 text-sm leading-relaxed text-purple-200/60">{details.description}</p>
         </div>
       </div>
-
+      
       <form onSubmit={submit} className="space-y-3">
         <label htmlFor={`${page}-password`} className="sr-only">
           Password for {details.title}
@@ -68,7 +68,7 @@ export default function PasswordEntry({ page, onAccess }) {
           autoComplete="current-password"
           required
           maxLength={256}
-          placeholder="Enter password"
+          placeholder="Birthday page : amritha || upload Wish : wish"
           className="w-full rounded-lg border border-purple-500/30 bg-slate-900/70 px-4 py-3 text-purple-100 outline-none placeholder:text-purple-300/35 focus:border-purple-300"
         />
         {error && (
@@ -79,7 +79,7 @@ export default function PasswordEntry({ page, onAccess }) {
         <button
           type="submit"
           disabled={busy}
-          className="w-full rounded-lg bg-gradient-to-r from-purple-400 to-pink-400 px-4 py-3 font-medium text-slate-950 transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
+          className="w-full rounded-lg bg-linear-to-r from-purple-400 to-pink-400 px-4 py-3 font-medium text-slate-950 transition-opacity hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
         >
           {busy ? 'Checking password…' : details.button}
         </button>

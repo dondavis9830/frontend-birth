@@ -94,7 +94,7 @@ export default function Navigation({ visible, onReplay }) {
           {/* scroll progress */}
           <div className="mx-2 mt-1 h-0.5 overflow-hidden rounded-full bg-purple-500/20">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-300 transition-[width] duration-150"
+              className="h-full rounded-full bg-linear-to-r from-purple-400 via-pink-400 to-yellow-300 transition-[width] duration-150"
               style={{ width: `${progress}%` }}
             />
           </div>
