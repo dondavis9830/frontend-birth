@@ -216,7 +216,7 @@ export default function TerminalIntro({ onAccess }) {
                     onChange={(event) => setPassword(event.target.value)}
                     autoComplete="current-password"
                     maxLength={256}
-                    placeholder="Enter your password"
+                    placeholder="Birthday page: amritha || upload BirthdayWish: wish "
                     disabled={busy}
                     className="w-full rounded-lg border border-purple-500/30 bg-slate-900/70 px-4 py-3 font-sans text-purple-100 outline-none placeholder:text-purple-300/35 focus:border-purple-300"
                   />
